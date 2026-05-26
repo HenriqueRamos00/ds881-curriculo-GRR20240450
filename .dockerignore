@@ -1,0 +1,12 @@
+node_modules
+dist
+dist-ssr
+coverage
+.git
+.github
+.idea
+.vscode
+*.log
+*.local
+*.tsbuildinfo
+.eslintcache
