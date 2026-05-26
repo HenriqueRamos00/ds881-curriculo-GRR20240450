@@ -1,70 +1,98 @@
-# Projeto Individual: Currículo Online DS881
+# Curriculo Online - DS881
 
-Este repositório é um **template** para a atividade prática individual da disciplina DS881. O objetivo é aplicar conceitos de conteinerização, automação de pipeline CI/CD e governança de código em um cenário de projeto real (seu currículo ou portfólio profissional).
+Projeto individual da disciplina DS881 com um curriculo online publicado via GitHub Pages, ambiente local conteinerizado com Docker e pipeline CI/CD usando GitHub Actions.
 
-## Instruções para Início
+## Link em producao
 
-Para iniciar o seu trabalho, siga estes passos:
+O curriculo esta publicado em:
 
-1. Clique no botão verde **"Use this template"** e selecione **"Create a new repository"**.
-2. Nomeie o repositório como `ds881-curriculo-GRR99999999`.
-3. Certifique-se de que a visibilidade seja **Public**.
-4. Configure a proteção da branch `main` imediatamente (instruções na seção 2.2).
+https://henriqueramos00.github.io/ds881-curriculo-GRR20240450/
 
----
+## Tecnologias utilizadas
 
-## 1. Objetivo
-Desenvolver e publicar um currículo profissional ou portfólio pessoal utilizando o GitHub Pages. O projeto deve demonstrar o domínio de ferramentas de conteinerização, automação de pipeline CI/CD e governança de código via fluxos de trabalho estruturados, mesmo em um ambiente de desenvolvimento individual.
+- Vue 3
+- TypeScript
+- Vite
+- Docker
+- Docker Compose
+- GitHub Actions
+- GitHub Pages
 
-## 2. Requisitos Técnicos
+## Execucao local com Docker
 
-### 2.1. Tecnologia e Stack
-* **Aplicação:** O site deve ser estático. É livre a escolha entre HTML/CSS puro ou o uso de geradores de site estático (SSG) como Astro, Hugo ou Jekyll.
-* **Hospedagem:** O deploy final deve ser realizado obrigatoriamente no GitHub Pages.
+Esta aplicacao pode ser executada localmente sem instalar Node.js diretamente na maquina. O ambiente de desenvolvimento e criado a partir do `Dockerfile`, e o `docker-compose.yml` inicia o servidor do Vite dentro do container.
 
-### 2.2. Conteinerização do Ambiente de Desenvolvimento (Docker)
-O repositório deve fornecer a infraestrutura necessária para que o projeto possa ser editado e testado localmente sem a exigência de instalar as linguagens ou dependências base (como Node.js ou Ruby) no sistema operacional do hospedeiro.
-* **Dockerfile:** Deve especificar uma imagem base adequada (ex: `node:alpine` ou `ruby:alpine`) e preparar o ambiente com as ferramentas necessárias para executar o gerador de site estático escolhido.
-* **Docker Compose (`docker-compose.yml`):** Deve ser configurado para iniciar o servidor de desenvolvimento nativo da ferramenta (ex: `vite dev`, `jekyll serve` ou `hugo server`).
-* **Mapeamento de Volumes (Bind Mounts):** A configuração do Compose deve mapear o diretório local do código-fonte para o diretório de trabalho dentro do contêiner. Isso é obrigatório para garantir o funcionamento do *hot reload* (atualização automática no navegador ao salvar um arquivo).
-* **Portas:** O servidor de desenvolvimento dentro do contêiner deve ser mapeado para responder na porta `8080` do localhost da máquina hospedeira.
+### Pre-requisitos
 
-### 2.3. Workflow de Git e Governança
-Apesar de ser um projeto individual, o projeto deve seguir as boas prática do desenvolvimento com git:
-* **Proteção de Branch:** A branch `main` deve estar configurada como protegida nas configurações do repositório.
-* **Fluxo de Trabalho:** É proibido realizar *push* direto na `main`. Toda alteração deve ser feita em uma branch secundária (ex: `feat/nome-da-feature`) e integrada via **Pull Request (PR)**.
-* **Critérios de Merge:** O merge para a `main` só deve ser permitido se o pipeline de CI estiver com status "verde" (sucesso).
-* **Mensagens de Commit:** Devem seguir o padrão *Conventional Commits* (ex: `feat:`, `fix:`, `ci:`, `docs:`).
+- Docker instalado
+- Docker Compose instalado
 
-### 2.4. CI/CD (GitHub Actions)
-Implementação de um workflow automatizado (`.github/workflows/main.yml`) contendo:
-1.  **Linter/Static Analysis:** Verificação de sintaxe e padrões de código.
-2.  **Build:** Validação de que a aplicação compila corretamente dentro do ambiente de CI.
-3.  **Deploy:** Publicação automatizada no GitHub Pages disparada após o merge na branch `main`.
+### Subir o ambiente
 
-## 3. Documentação
-O arquivo `README.md` deve conter:
-1.  Link público do currículo em produção.
-2.  Instruções detalhadas para execução do ambiente local via Docker.
-3.  Prints ou descrição da configuração de proteção da branch `main` aplicada no GitHub.
+Na raiz do repositorio, execute:
 
-## 4. Critérios de Avaliação
+```bash
+docker compose up --build
+```
 
-| Item | Peso |
-| :--- | :--- |
-| Configuração correta de Docker (Dockerfile e Compose) | 30% |
-| Pipeline de CI/CD funcional (Lint, Build e Deploy) | 30% |
-| Evidência de uso de Pull Requests e Branch Protection | 20% |
-| Qualidade da documentação e histórico de commits | 10% |
-| Funcionamento da aplicação no GitHub Pages | 10% |
+O comando acima:
 
+- constroi a imagem com base em `node:22-alpine`;
+- instala as dependencias com `npm ci`;
+- inicia o servidor de desenvolvimento com `npm run dev -- --host 0.0.0.0`;
+- mapeia a porta `5173` do container para a porta `8080` da maquina local;
+- monta o diretorio do projeto em `/app`, permitindo hot reload ao salvar alteracoes nos arquivos.
 
----
+Depois que o container estiver em execucao, acesse:
 
-## 5. Entrega e Avaliação
+http://localhost:8080
 
-A entrega deve ser realizada através do formulário disponibilizado pelo professor, contendo o link do seu repositório público.
+### Parar o ambiente
 
----
+Para parar os containers, pressione `Ctrl+C` no terminal em que o Compose esta rodando.
 
-> **Atenção:** Não esqueça de anexar no final deste README ou na documentação do projeto um print comprovando que a regra de **Branch Protection** da `main` foi configurada no GitHub.
+Se preferir parar em outro terminal, execute:
+
+```bash
+docker compose down
+```
+
+### Reinstalar dependencias do container
+
+Caso haja alteracoes em `package.json` ou `package-lock.json`, reconstrua a imagem:
+
+```bash
+docker compose up --build
+```
+
+### Executar comandos dentro do container
+
+Com o ambiente em execucao, e possivel executar comandos dentro do servico `app`:
+
+```bash
+docker compose exec app npm run lint
+docker compose exec app npm run build
+```
+
+## CI/CD
+
+O workflow esta configurado em `.github/workflows/main.yml` e executa:
+
+- linter e analise estatica em Pull Requests para `main` e em pushes na `main`;
+- build da aplicacao;
+- deploy automatico para GitHub Pages apos alteracoes integradas na branch `main`.
+
+## Protecao da branch main
+
+A branch `main` possui uma ruleset de protecao ativa no GitHub. A configuracao aplicada inclui:
+
+- ruleset com status `Active`;
+- criterio de alvo aplicado a branch `main`;
+- lista de bypass vazia;
+- restricao para impedir delecao da branch;
+- obrigatoriedade de Pull Request antes do merge;
+- obrigatoriedade de status checks aprovados antes da atualizacao da branch.
+
+Evidencia da configuracao:
+
+![Configuracao de protecao da branch main](.github/rules.png)
